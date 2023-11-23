@@ -1,10 +1,14 @@
 """
 URLs for platform_plugin_communications.
 """
-from django.urls import re_path  # pylint: disable=unused-import
-from django.views.generic import TemplateView  # pylint: disable=unused-import
+from django.urls import re_path
+
+from platform_plugin_communications.api.views import SendEmailAPIView
 
 urlpatterns = [
-    # TODO: Fill in URL patterns and views here.
-    # re_path(r'', TemplateView.as_view(template_name="platform_plugin_communications/base.html")),
+    re_path(
+        r"^individual_learners",
+        SendEmailAPIView.as_view(),
+        name="send_email_to_individual_learners",
+    ),
 ]

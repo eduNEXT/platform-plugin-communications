@@ -4,6 +4,10 @@ platform_plugin_communications Django application initialization.
 
 from django.apps import AppConfig
 
+try:
+    from openedx.core.constants import COURSE_ID_PATTERN
+except ImportError:
+    COURSE_ID_PATTERN = object()
 
 class PlatformPluginCommunicationsConfig(AppConfig):
     """
@@ -13,13 +17,15 @@ class PlatformPluginCommunicationsConfig(AppConfig):
     name = "platform_plugin_communications"
 
     plugin_app = {
+        "url_config": {
+            "lms.djangoapp": {
+                "namespace": "platform_plugin_communications",
+                "regex": rf"courses/{COURSE_ID_PATTERN}/bulk_email/",
+                "relative_path": "urls",
+            }
+        },
         "settings_config": {
             "lms.djangoapp": {
-                "common": {"relative_path": "settings.common"},
-                "test": {"relative_path": "settings.test"},
-                "production": {"relative_path": "settings.production"},
-            },
-            "cms.djangoapp": {
                 "common": {"relative_path": "settings.common"},
                 "test": {"relative_path": "settings.test"},
                 "production": {"relative_path": "settings.production"},
