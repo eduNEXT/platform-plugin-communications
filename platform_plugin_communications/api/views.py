@@ -1,11 +1,11 @@
 """API Views for the platform_plugin_forum_email_notifier plugin."""
-from rest_framework.views import APIView
-
-from django.http import JsonResponse
-
 import logging
 
+from django.http import JsonResponse
+from rest_framework.views import APIView
+
 log = logging.getLogger(__name__)
+
 
 class SendEmailAPIView(APIView):
     """
@@ -16,4 +16,7 @@ class SendEmailAPIView(APIView):
         """
         Get the forum email notification preference for the user.
         """
-        return JsonResponse({'status': 'ok'})
+        return JsonResponse({"status": "ok"})
+
+
+send_email_api_view = SendEmailAPIView.as_view()

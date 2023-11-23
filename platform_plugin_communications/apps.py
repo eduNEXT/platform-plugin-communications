@@ -9,6 +9,7 @@ try:
 except ImportError:
     COURSE_ID_PATTERN = object()
 
+
 class PlatformPluginCommunicationsConfig(AppConfig):
     """
     Configuration for the platform_plugin_communications Django application.
