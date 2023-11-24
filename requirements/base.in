@@ -6,3 +6,5 @@ Django             # Web application framework
 
 openedx-atlas
 djangorestframework
+edx-opaque-keys
+celery
