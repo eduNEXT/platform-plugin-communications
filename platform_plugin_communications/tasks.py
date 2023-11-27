@@ -7,27 +7,19 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_noop
 
+from platform_plugin_communications.edxapp_wrapper.bulk_email import CourseEmail, _get_course_email_context
+from platform_plugin_communications.edxapp_wrapper.courseware_courses import get_course
+from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (
+    InstructorTask,
+    queue_subtasks_for_query,
+    run_main_task,
+    send_course_email,
+)
+from platform_plugin_communications.edxapp_wrapper.util_query import use_read_replica_if_available
+
 User = get_user_model()
 
 log = logging.getLogger("edx.celery.task")
-
-
-try:
-    from common.djangoapps.util.query import use_read_replica_if_available
-    from lms.djangoapps.bulk_email.models import CourseEmail
-    from lms.djangoapps.bulk_email.tasks import _get_course_email_context, send_course_email
-    from lms.djangoapps.courseware.courses import get_course
-    from lms.djangoapps.instructor_task.models import InstructorTask
-    from lms.djangoapps.instructor_task.subtasks import queue_subtasks_for_query
-    from lms.djangoapps.instructor_task.tasks_helper.runner import run_main_task
-except ImportError:
-    use_read_replica_if_available = None
-    run_main_task = None
-    InstructorTask = None
-    CourseEmail = None
-    get_course = None
-    _get_course_email_context = None
-    queue_subtasks_for_query = None
 
 
 @shared_task

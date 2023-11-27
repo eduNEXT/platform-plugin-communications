@@ -4,15 +4,13 @@ Utilities for the communications plugin.
 import hashlib
 from collections import Counter
 
+from platform_plugin_communications.edxapp_wrapper.bulk_email import get_course_email
+from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (
+    InstructorTaskTypes,
+    schedule_task,
+    submit_task,
+)
 from platform_plugin_communications.tasks import send_bulk_course_email_to_learners
-
-try:
-    from lms.djangoapps.bulk_email.api import get_course_email
-    from lms.djangoapps.instructor_task.api_helper import schedule_task, submit_task
-    from lms.djangoapps.instructor_task.data import InstructorTaskTypes
-except ImportError:
-    get_course_email = None
-    InstructorTaskTypes = None
 
 
 def submit_bulk_course_email_to_learners(

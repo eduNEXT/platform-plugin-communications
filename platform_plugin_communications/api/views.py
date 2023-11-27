@@ -16,24 +16,16 @@ import platform_plugin_communications.utils as task_api
 
 log = logging.getLogger(__name__)
 
-try:
-    from lms.djangoapps.bulk_email.api import create_course_email, is_bulk_email_feature_enabled
-    from lms.djangoapps.instructor.views.api import (
-        _get_branded_email_from_address,
-        _get_branded_email_template,
-        common_exceptions_400,
-        permissions,
-        require_course_permission,
-        require_post_params,
-    )
-    from openedx.core.djangoapps.content.course_overviews.api import get_course_overview_or_none
-except ImportError:
-    log.warning("Unable to import bulk_email or course_overviews")
-    create_course_email = None
-    is_bulk_email_feature_enabled = None
-    get_course_overview_or_none = None
-    _get_branded_email_from_address = None
-    _get_branded_email_template = None
+from platform_plugin_communications.edxapp_wrapper.bulk_email import create_course_email, is_bulk_email_feature_enabled
+from platform_plugin_communications.edxapp_wrapper.course_overviews_api import get_course_overview_or_none
+from platform_plugin_communications.edxapp_wrapper.instructor_views_api import (
+    _get_branded_email_from_address,
+    _get_branded_email_template,
+    common_exceptions_400,
+    permissions,
+    require_course_permission,
+    require_post_params,
+)
 
 
 @transaction.non_atomic_requests
