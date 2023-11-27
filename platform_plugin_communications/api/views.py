@@ -13,9 +13,6 @@ from django.views.decorators.http import require_POST
 from opaque_keys.edx.keys import CourseKey
 
 import platform_plugin_communications.utils as task_api
-
-log = logging.getLogger(__name__)
-
 from platform_plugin_communications.edxapp_wrapper.bulk_email import create_course_email, is_bulk_email_feature_enabled
 from platform_plugin_communications.edxapp_wrapper.course_overviews_api import get_course_overview_or_none
 from platform_plugin_communications.edxapp_wrapper.instructor_views_api import (
@@ -26,6 +23,8 @@ from platform_plugin_communications.edxapp_wrapper.instructor_views_api import (
     require_course_permission,
     require_post_params,
 )
+
+log = logging.getLogger(__name__)
 
 
 @transaction.non_atomic_requests
@@ -47,6 +46,9 @@ def send_email_api_view(request, course_id):
 
 
 def send_email(request, course_id):
+    """
+    Send email to individual learners.
+    """
     course_id = CourseKey.from_string(course_id)
     course_overview = get_course_overview_or_none(course_id)
 

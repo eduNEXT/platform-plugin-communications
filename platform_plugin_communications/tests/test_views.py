@@ -1,3 +1,6 @@
+"""
+Tests for views.
+"""
 import datetime
 import hashlib
 import json
@@ -26,20 +29,29 @@ class Target(Mock):
 
 
 @override_settings(
-    PLATFORM_PLUGIN_COMMUNICATIONS_BULK_EMAIL_API_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.bulk_email_api_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_VIEWS_API_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.instructor_views_api_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_API_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.course_overviews_api_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_UTIL_QUERY_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.util_query_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_TASKS_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.instructor_tasks_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_COURSEWARE_COURSES_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.courseware_courses_p_v1_test",
+    PLATFORM_PLUGIN_COMMUNICATIONS_BULK_EMAIL_API_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.bulk_email_api_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_VIEWS_API_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.instructor_views_api_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_API_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.course_overviews_api_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_UTIL_QUERY_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.util_query_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_TASKS_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.instructor_tasks_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_COURSEWARE_COURSES_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.courseware_courses_p_v1_test"
+    ),
 )
 class TestSendEmailAPIView(TestCase):
     """
     Test case for send_email_api_view.
     """
-
-    def setUp(self):
-        super().setUp()
 
     @patch("platform_plugin_communications.api.views.get_course_overview_or_none")
     @patch("platform_plugin_communications.api.views.is_bulk_email_feature_enabled")
@@ -57,7 +69,9 @@ class TestSendEmailAPIView(TestCase):
         """
         Test case for sending email to individual learners.
         """
-        from platform_plugin_communications.edxapp_wrapper.instructor_tasks import InstructorTaskTypes
+        from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (  # noqa pylint: disable=import-outside-toplevel
+            InstructorTaskTypes,
+        )
 
         request = Mock()
         request.method = "POST"
@@ -109,6 +123,12 @@ class TestSendEmailAPIView(TestCase):
             hashlib.md5(str(email_id).encode("utf-8")).hexdigest(),
         )
 
+        assert response.status_code == 200
+        assert json.loads(response.content) == {
+            "course_id": course_id,
+            "success": True,
+        }
+
     @patch("platform_plugin_communications.api.views.get_course_overview_or_none")
     @patch("platform_plugin_communications.api.views.is_bulk_email_feature_enabled")
     @patch("platform_plugin_communications.api.views.create_course_email")
@@ -125,7 +145,9 @@ class TestSendEmailAPIView(TestCase):
         """
         Test case for sending email to individual learners.
         """
-        from platform_plugin_communications.edxapp_wrapper.instructor_tasks import InstructorTaskTypes
+        from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (  # noqa pylint: disable=import-outside-toplevel
+            InstructorTaskTypes,
+        )
 
         request = Mock()
         request.method = "POST"
@@ -177,3 +199,8 @@ class TestSendEmailAPIView(TestCase):
             hashlib.md5(str(email_id).encode("utf-8")).hexdigest(),
             tomorrow.replace(tzinfo=pytz.utc),
         )
+        assert response.status_code == 200
+        assert json.loads(response.content) == {
+            "course_id": course_id,
+            "success": True,
+        }

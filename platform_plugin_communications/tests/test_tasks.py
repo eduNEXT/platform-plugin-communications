@@ -1,11 +1,10 @@
-import hashlib
-import json
+"""
+Test for tasks.
+"""
 from unittest.mock import Mock, patch
 
 from django.test import TestCase, override_settings
-from opaque_keys.edx.keys import CourseKey
 
-from platform_plugin_communications.api.views import send_email
 from platform_plugin_communications.tasks import (
     perform_delegate_email_batches_to_learners,
     send_bulk_course_email_to_learners,
@@ -13,17 +12,29 @@ from platform_plugin_communications.tasks import (
 
 
 @override_settings(
-    PLATFORM_PLUGIN_COMMUNICATIONS_BULK_EMAIL_API_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.bulk_email_api_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_VIEWS_API_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.instructor_views_api_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_API_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.course_overviews_api_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_UTIL_QUERY_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.util_query_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_TASKS_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.instructor_tasks_p_v1_test",
-    PLATFORM_PLUGIN_COMMUNICATIONS_COURSEWARE_COURSES_BACKEND="platform_plugin_communications.edxapp_wrapper.backends.courseware_courses_p_v1_test",
-    BULK_EMAIL_EMAILS_PER_TASK=1,
+    PLATFORM_PLUGIN_COMMUNICATIONS_BULK_EMAIL_API_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.bulk_email_api_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_VIEWS_API_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.instructor_views_api_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_API_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.course_overviews_api_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_UTIL_QUERY_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.util_query_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_TASKS_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.instructor_tasks_p_v1_test"
+    ),
+    PLATFORM_PLUGIN_COMMUNICATIONS_COURSEWARE_COURSES_BACKEND=(
+        "platform_plugin_communications.edxapp_wrapper.backends.courseware_courses_p_v1_test"
+    ),
 )
 class TestTasks(TestCase):
-    def setUp(self):
-        super().setUp()
+    """
+    Test case for tasks.
+    """
 
     @patch("platform_plugin_communications.tasks.run_main_task")
     def test_send_bulk_course_email_to_learners(self, mock_run_main_task):

@@ -1,3 +1,6 @@
+"""
+Test module for URLs.
+"""
 from django.test import TestCase
 
 from platform_plugin_communications.api.views import send_email_api_view
@@ -15,4 +18,6 @@ class UrlTestCases(TestCase):
         """
         assert len(urlpatterns) == 1
         assert urlpatterns[0].name == "send_email_to_individual_learners"
-        assert urlpatterns[0].callback == send_email_api_view
+        assert (  # pylint: disable=comparison-with-callable
+            urlpatterns[0].callback == send_email_api_view
+        )

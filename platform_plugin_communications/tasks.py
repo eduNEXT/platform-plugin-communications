@@ -1,10 +1,12 @@
+"""
+Tasks module for platform_plugin_communications.
+"""
 import json
 import logging
 
 from celery import shared_task
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import models
 from django.utils.translation import gettext_noop
 
 from platform_plugin_communications.edxapp_wrapper.bulk_email import CourseEmail, _get_course_email_context
@@ -23,9 +25,7 @@ log = logging.getLogger("edx.celery.task")
 
 
 @shared_task
-def send_bulk_course_email_to_learners(
-    entry_id, _xblock_instance_args
-):  # pylint: disable=unused-argument
+def send_bulk_course_email_to_learners(entry_id, _xblock_instance_args):
     """
     Send email to individual learners.
 
@@ -40,6 +40,7 @@ def perform_delegate_email_batches_to_learners(
     entry_id, course_id, task_input, action_name
 ):
     """
+    Send email to individual learners in different subtasks.
 
     Extracted from: lms.djangoapps.bulk_email.tasks.perform_delegate_email_batches
     """
@@ -55,9 +56,9 @@ def perform_delegate_email_batches_to_learners(
         format_msg = (
             "Course id conflict: explicit value %r does not match task value %r"
         )
-        log.warning(
+        log.warning(  # lint-amnesty, pylint: disable=logging-not-lazy
             "Task %s: " + format_msg, task_id, course_id, entry.course_id
-        )  # lint-amnesty, pylint: disable=logging-not-lazy
+        )
         raise ValueError(format_msg % (course_id, entry.course_id))
 
     # Fetch the CourseEmail.
@@ -92,9 +93,9 @@ def perform_delegate_email_batches_to_learners(
         format_msg = (
             "Course id conflict: explicit value %r does not match email value %r"
         )
-        log.warning(
+        log.warning(  # lint-amnesty, pylint: disable=logging-not-lazy
             "Task %s: " + format_msg, task_id, course_id, email_obj.course_id
-        )  # lint-amnesty, pylint: disable=logging-not-lazy
+        )
         raise ValueError(format_msg % (course_id, email_obj.course_id))
 
     # Fetch the course object.
@@ -144,7 +145,7 @@ def perform_delegate_email_batches_to_learners(
         raise ValueError(msg)
 
     def _create_send_email_subtask(to_list, initial_subtask_status):
-        """Creates a subtask to send email to a given recipient list."""
+        """Create a subtask to send email to a given recipient list."""
         subtask_id = initial_subtask_status.task_id
         new_subtask = send_course_email.subtask(
             (

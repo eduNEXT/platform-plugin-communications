@@ -14,7 +14,7 @@ from platform_plugin_communications.tasks import send_bulk_course_email_to_learn
 
 
 def submit_bulk_course_email_to_learners(
-    request, course_key, email_id, schedule=None, emails=[]
+    request, course_key, email_id, schedule=None, emails=None
 ):
     """
     Submit a bulk email to individual learners.

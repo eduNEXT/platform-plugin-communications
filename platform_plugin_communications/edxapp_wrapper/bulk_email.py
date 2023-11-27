@@ -43,7 +43,9 @@ def _get_course_email_context(*args, **kwargs):
     backend_function = settings.PLATFORM_PLUGIN_COMMUNICATIONS_BULK_EMAIL_API_BACKEND
     backend = import_module(backend_function)
 
-    return backend._get_course_email_context(*args, **kwargs)
+    return backend._get_course_email_context(  # pylint: disable=protected-access
+        *args, **kwargs
+    )
 
 
 def get_course_email(*args, **kwargs):

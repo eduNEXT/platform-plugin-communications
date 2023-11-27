@@ -15,7 +15,9 @@ def _get_branded_email_from_address(*args, **kwargs):
     )
     backend = import_module(backend_function)
 
-    return backend._get_branded_email_from_address(*args, **kwargs)
+    return backend._get_branded_email_from_address(  # pylint: disable=protected-access
+        *args, **kwargs
+    )
 
 
 def _get_branded_email_template(*args, **kwargs):
@@ -27,7 +29,9 @@ def _get_branded_email_template(*args, **kwargs):
     )
     backend = import_module(backend_function)
 
-    return backend._get_branded_email_template(*args, **kwargs)
+    return backend._get_branded_email_template(  # pylint: disable=protected-access
+        *args, **kwargs
+    )
 
 
 def common_exceptions_400(*args, **kwargs):

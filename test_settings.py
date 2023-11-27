@@ -74,3 +74,5 @@ PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_TASKS_BACKEND = (
     "platform_plugin_communications.edxapp_wrapper.backends.instructor_tasks_p_v1_test"
 )
 PLATFORM_PLUGIN_COMMUNICATIONS_COURSEWARE_COURSES_BACKEND = "platform_plugin_communications.edxapp_wrapper.backends.courseware_courses_p_v1_test"
+
+BULK_EMAIL_EMAILS_PER_TASK = 1
