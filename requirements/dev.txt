@@ -331,7 +331,7 @@ wcwidth==0.2.12
     # via
     #   -r requirements/quality.txt
     #   prompt-toolkit
-wheel==0.41.3
+wheel==0.42.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
