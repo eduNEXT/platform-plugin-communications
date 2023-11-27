@@ -103,25 +103,23 @@ def perform_delegate_email_batches_to_learners(
     # Get arguments that will be passed to every subtask.
     targets = email_obj.targets.all()
     global_email_context = _get_course_email_context(course)
-
     recipient_qsets = [target.get_users(course_id, user_id) for target in targets]
 
     emails = task_input["emails"]
 
-    enrollment_query = models.Q(
-        is_active=True,
-        courseenrollment__course_id=course_id,
-        courseenrollment__is_active=True,
-    )
-
     if emails:
         recipient_qsets.append(
             use_read_replica_if_available(
-                User.objects.filter(models.Q(email__in=emails) & enrollment_query)
+                User.objects.filter(
+                    email__in=emails,
+                    is_active=True,
+                    courseenrollment__course_id=course_id,
+                    courseenrollment__is_active=True,
+                )
             )
         )
     # Use union here to combine the qsets instead of the | operator.  This avoids generating an
-    # inefficient OUTER JOIN query that would read the whole user table.
+    # inefficient OUTER JOIN query that would read the whole user table
     combined_set = (
         recipient_qsets[0].union(*recipient_qsets[1:])
         if len(recipient_qsets) > 1

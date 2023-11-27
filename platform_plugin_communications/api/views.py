@@ -43,6 +43,10 @@ def send_email_api_view(request, course_id):
 
     Extracted from: lms.djangoapps.instructor.views.api import send_email
     """
+    return send_email(request, course_id)
+
+
+def send_email(request, course_id):
     course_id = CourseKey.from_string(course_id)
     course_overview = get_course_overview_or_none(course_id)
 
