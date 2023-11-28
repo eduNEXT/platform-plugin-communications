@@ -5,14 +5,17 @@ import logging
 
 import dateutil
 import pytz
-from django.db import transaction
+from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
+from django.db import models, transaction
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from opaque_keys.edx.keys import CourseKey
 
 import platform_plugin_communications.utils as task_api
+from platform_plugin_communications.api.serializers import UserSearchSerializer
 from platform_plugin_communications.edxapp_wrapper.bulk_email import create_course_email, is_bulk_email_feature_enabled
 from platform_plugin_communications.edxapp_wrapper.course_overviews import get_course_overview_or_none
 from platform_plugin_communications.edxapp_wrapper.instructor_views import (
@@ -23,6 +26,8 @@ from platform_plugin_communications.edxapp_wrapper.instructor_views import (
     require_course_permission,
     require_post_params,
 )
+
+User = get_user_model()
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +48,16 @@ def send_email_api_view(request, course_id):
     Extracted from: lms.djangoapps.instructor.views.api import send_email
     """
     return send_email(request, course_id)
+
+
+@transaction.non_atomic_requests
+@require_GET
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+@require_course_permission(permissions.EMAIL)
+@common_exceptions_400
+def search_learner_api_view(request, course_id):
+    return search_learner(request, course_id)
 
 
 def send_email(request, course_id):
@@ -117,5 +132,43 @@ def send_email(request, course_id):
         {
             "course_id": str(course_id),
             "success": True,
+        }
+    )
+
+
+def search_learner(request, course_id):
+    """
+    Search for learners based on the query param.
+    """
+    course_id = CourseKey.from_string(course_id)
+    query = request.GET.get("query", "")
+    base_queryset = User.objects.filter(
+        is_active=True,
+        courseenrollment__course_id=course_id,
+        courseenrollment__is_active=True,
+    )
+    if query:
+        queryset = base_queryset.filter(
+            models.Q(email__icontains=query)
+            | models.Q(username__icontains=query)
+            | models.Q(profile__name__icontains=query),
+        ).distinct()
+    else:
+        queryset = base_queryset
+
+    page_number = request.GET.get("page", 1)
+    page_size = request.GET.get("page_size", 50)
+    paginator = Paginator(queryset, page_size)
+    result_page = paginator.get_page(page_number)
+    data = UserSearchSerializer(result_page, many=True).data
+
+    return JsonResponse(
+        {
+            "course_id": str(course_id),
+            "page": page_number,
+            "page_count": paginator.num_pages,
+            "page_size": paginator.per_page,
+            "count": paginator.count,
+            "results": data,
         }
     )
