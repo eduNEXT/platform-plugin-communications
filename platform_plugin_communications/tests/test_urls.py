@@ -16,7 +16,7 @@ class UrlTestCases(TestCase):
         """
         Test case for checking the number of URL patterns.
         """
-        assert len(urlpatterns) == 1
+        assert len(urlpatterns) == 2
         assert urlpatterns[0].name == "send_email"
         assert (  # pylint: disable=comparison-with-callable
             urlpatterns[0].callback == send_email_api_view

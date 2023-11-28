@@ -217,7 +217,6 @@ class TestSearchUsersAPIView(TestCase):
         """
         Test case for search users API View.
         """
-
         request = Mock()
         request.method = "GET"
         request.GET = {}
@@ -238,6 +237,7 @@ class TestSearchUsersAPIView(TestCase):
             user_mock.profile.name = user["name"]
             users_mock.append(user_mock)
         mock_User.objects.filter.return_value = users_mock
+
         response = search_learner(request, course_id)
 
         mock_User.objects.filter.assert_called_once_with(
@@ -255,12 +255,12 @@ class TestSearchUsersAPIView(TestCase):
             "results": users,
         }
 
+    @patch("platform_plugin_communications.api.views.cache")
     @patch("platform_plugin_communications.api.views.User")
-    def test_search_users_with_query(self, mock_User):
+    def test_search_users_with_query(self, mock_User, mock_cache):
         """
         Test case for search users API View with query.
         """
-
         request = Mock()
         request.method = "GET"
         request.GET = {
@@ -275,18 +275,21 @@ class TestSearchUsersAPIView(TestCase):
                 "name": "test",
             }
         ]
-        users_mock = []
+        user_list = []
         for user in users:
             user_mock = Mock()
             user_mock.username = user["username"]
             user_mock.email = user["email"]
             user_mock.profile.name = user["name"]
-            users_mock.append(user_mock)
+            user_list.append(user_mock)
         mock_filter = Mock()
         mock_User.objects.filter.return_value = mock_filter
         mock_filter2 = Mock()
         mock_filter.filter.return_value = mock_filter2
-        mock_filter2.distinct.return_value = users_mock
+        mock_filter2.distinct.return_value = user_list
+        mock_cache.get.return_value = None
+        mock_cache.set.return_value = None
+
         response = search_learner(request, course_id)
 
         mock_User.objects.filter.assert_called_once_with(
@@ -302,6 +305,12 @@ class TestSearchUsersAPIView(TestCase):
             | models.Q(profile__name__icontains="test"),
         )
         mock_User.objects.filter().filter().distinct.assert_called_once()
+        mock_cache.get.assert_called_once_with("search_learner_course-v1:edX+DemoX+Demo_Course_test")
+        mock_cache.set.assert_called_once_with(
+            "search_learner_course-v1:edX+DemoX+Demo_Course_test",
+            user_list,
+            60,
+        )
         assert response.status_code == 200
         assert json.loads(response.content) == {
             "total": 1,

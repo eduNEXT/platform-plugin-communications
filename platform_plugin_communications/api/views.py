@@ -6,6 +6,7 @@ import logging
 import dateutil
 import pytz
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import models, transaction
 from django.http import HttpResponseBadRequest, JsonResponse
@@ -53,7 +54,6 @@ def send_email_api_view(request, course_id):
 @transaction.non_atomic_requests
 @require_GET
 @ensure_csrf_cookie
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @require_course_permission(permissions.EMAIL)
 @common_exceptions_400
 def search_learner_api_view(request, course_id):
@@ -145,19 +145,26 @@ def search_learner(request, course_id):
     """
     course_id = CourseKey.from_string(course_id)
     query = request.GET.get("query", "")
+
     base_queryset = User.objects.filter(
         is_active=True,
         courseenrollment__course_id=course_id,
         courseenrollment__is_active=True,
     )
     if query:
-        queryset = base_queryset.filter(
-            models.Q(  # pylint: disable=unsupported-binary-operation
-                email__icontains=query
-            )
-            | models.Q(username__icontains=query)
-            | models.Q(profile__name__icontains=query),
-        ).distinct()
+        cache_key = f"search_learner_{course_id}_{query}"
+        data = cache.get(cache_key)
+        if data:
+            queryset = data
+        else:
+            queryset = base_queryset.filter(
+                models.Q(  # pylint: disable=unsupported-binary-operation
+                    email__icontains=query
+                )
+                | models.Q(username__icontains=query)
+                | models.Q(profile__name__icontains=query),
+            ).distinct()
+            cache.set(cache_key, queryset, 60)
     else:
         queryset = base_queryset
 
@@ -167,13 +174,13 @@ def search_learner(request, course_id):
     result_page = paginator.get_page(page_number)
     data = UserSearchSerializer(result_page, many=True).data
 
-    return JsonResponse(
-        {
-            "course_id": str(course_id),
-            "page": page_number,
-            "pages": paginator.num_pages,
-            "page_size": paginator.per_page,
-            "total": paginator.count,
-            "results": data,
-        }
-    )
+    response_data = {
+        "course_id": str(course_id),
+        "page": page_number,
+        "pages": paginator.num_pages,
+        "page_size": paginator.per_page,
+        "total": paginator.count,
+        "results": data,
+    }
+
+    return JsonResponse(response_data)
