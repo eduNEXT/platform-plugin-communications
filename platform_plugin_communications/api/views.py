@@ -57,6 +57,9 @@ def send_email_api_view(request, course_id):
 @require_course_permission(permissions.EMAIL)
 @common_exceptions_400
 def search_learner_api_view(request, course_id):
+    """
+    Search for learners api view.
+    """
     return search_learner(request, course_id)
 
 
@@ -149,7 +152,9 @@ def search_learner(request, course_id):
     )
     if query:
         queryset = base_queryset.filter(
-            models.Q(email__icontains=query)
+            models.Q(  # pylint: disable=unsupported-binary-operation
+                email__icontains=query
+            )
             | models.Q(username__icontains=query)
             | models.Q(profile__name__icontains=query),
         ).distinct()
@@ -166,9 +171,9 @@ def search_learner(request, course_id):
         {
             "course_id": str(course_id),
             "page": page_number,
-            "page_count": paginator.num_pages,
+            "pages": paginator.num_pages,
             "page_size": paginator.per_page,
-            "count": paginator.count,
+            "total": paginator.count,
             "results": data,
         }
     )
