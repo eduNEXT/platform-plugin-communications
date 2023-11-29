@@ -21,7 +21,7 @@ class PlatformPluginCommunicationsConfig(AppConfig):
         "url_config": {
             "lms.djangoapp": {
                 "namespace": "platform_plugin_communications",
-                "regex": rf"courses/{COURSE_ID_PATTERN}/instructor/api/",
+                "regex": rf"platform-plugin-communications/{COURSE_ID_PATTERN}/api/",
                 "relative_path": "urls",
             }
         },

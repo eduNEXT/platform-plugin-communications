@@ -1,4 +1,4 @@
-"""API Views for the platform_plugin_forum_email_notifier plugin."""
+"""API Views for the plugin platform-plugin-communications."""
 import datetime
 import json
 import logging

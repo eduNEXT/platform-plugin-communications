@@ -5,7 +5,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.22/ref/settings/
 """
 INSTALLED_APPS = [
-    "filesmanager",
+    "platform_plugin_communications",
 ]
 
 
