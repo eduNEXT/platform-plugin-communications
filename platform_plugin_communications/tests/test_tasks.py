@@ -39,11 +39,10 @@ class TestTasks(TestCase):
     @patch("platform_plugin_communications.tasks.run_main_task")
     def test_send_bulk_course_email_to_learners(self, mock_run_main_task):
         """
-        Test case for sending email to individual learners.
+        Test case for the task to send email to learners.
         """
 
         mock_run_main_task.return_value = True
-
         entry_id = 1
         _xblock_instance_args = None
 
@@ -71,7 +70,7 @@ class TestTasks(TestCase):
         mock_InstructorTask,
     ):
         """
-        Test case for sending email to individual learners.
+        Test case for perform delegate email batches to learners.
         """
         course_id = "course-v1:edX+DemoX+Demo_Course"
         instructor_task_mock = Mock(requester=Mock(id=1), task_id=1)
@@ -80,13 +79,20 @@ class TestTasks(TestCase):
         mock_InstructorTask.objects.get.return_value = instructor_task_mock
         mock_queue_subtasks_for_query.return_value = True
         mock_send_course_email.return_value = True
-        target_mock = Mock(target_type="myself")
-        target_mock.get_users.return_value = Mock(id=1)
+        target_mock_myself = Mock(target_type="myself")
+        target_mock_learners = Mock(target_type="learners")
+        target_mock_myself.get_users.return_value = Mock(id=1)
+        target_mock_learners.get_users.return_value = Mock(id=1)
         mock_union = Mock(id=1)
-        target_mock.get_users.return_value.union.return_value = mock_union
-        target_mock.get_users.return_value.union.return_value.count.return_value = 2
+        target_mock_myself.get_users.return_value.union.return_value = mock_union
+        target_mock_myself.get_users.return_value.union.return_value.count.return_value = (
+            2
+        )
         mock_course_email_instance = Mock(course_id=course_id)
-        mock_course_email_instance.targets.all.return_value = [target_mock]
+        mock_course_email_instance.targets.all.return_value = [
+            target_mock_myself,
+            target_mock_learners,
+        ]
         mock_CourseEmail.objects.get.return_value = mock_course_email_instance
         mock_get_course.return_value = Mock(id=course_id)
         mock_get_course_email_context.return_value = {"course": Mock(id=course_id)}
@@ -115,7 +121,7 @@ class TestTasks(TestCase):
             courseenrollment__course_id=course_id,
             courseenrollment__is_active=True,
         )
-
+        target_mock_myself.get_users.assert_called_once_with(course_id, 1)
         args, kwargs = mock_queue_subtasks_for_query.call_args
         expected = (
             instructor_task_mock,

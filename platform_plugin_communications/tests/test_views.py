@@ -11,6 +11,7 @@ from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
 
 from platform_plugin_communications.api.views import send_email
+from platform_plugin_communications.edxapp_wrapper.instructor_tasks import InstructorTaskTypes
 from platform_plugin_communications.tasks import send_bulk_course_email_to_learners
 
 delta = datetime.timedelta(days=1)
@@ -69,10 +70,6 @@ class TestSendEmailAPIView(TestCase):
         """
         Test case for sending email to individual learners.
         """
-        from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (  # noqa pylint: disable=import-outside-toplevel
-            InstructorTaskTypes,
-        )
-
         request = Mock()
         request.method = "POST"
         targets = ["myself"]
@@ -91,7 +88,9 @@ class TestSendEmailAPIView(TestCase):
         mock_get_course_overview_or_none.return_value = Mock()
         course_email_mock = Mock()
         mock_get_course_email.return_value = course_email_mock
-        course_email_mock.targets.all.return_value = [Target(x) for x in targets]
+        course_email_mock.targets.all.return_value = [
+            Target(target) for target in targets
+        ]
         mock_create_course_email.return_value = course_email_mock
         mock_submit_task.return_value = Mock()
         course_key = CourseKey.from_string(course_id)
@@ -124,11 +123,14 @@ class TestSendEmailAPIView(TestCase):
             hashlib.md5(str(email_id).encode("utf-8")).hexdigest(),
         )
 
-        assert response.status_code == 200
-        assert json.loads(response.content) == {
-            "course_id": course_id,
-            "success": True,
-        }
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                "course_id": course_id,
+                "success": True,
+            },
+        )
 
     @patch("platform_plugin_communications.api.views.get_course_overview_or_none")
     @patch("platform_plugin_communications.api.views.is_bulk_email_feature_enabled")
@@ -144,12 +146,8 @@ class TestSendEmailAPIView(TestCase):
         mock_get_course_overview_or_none,
     ):
         """
-        Test case for sending email to individual learners.
+        Test case for sending email to individual learners with schedule.
         """
-        from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (  # noqa pylint: disable=import-outside-toplevel
-            InstructorTaskTypes,
-        )
-
         request = Mock()
         request.method = "POST"
         targets = ["myself"]

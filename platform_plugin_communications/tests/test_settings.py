@@ -21,7 +21,13 @@ class SettingsTestCase(TestCase):
         self.production_settings = production_settings
 
     def test_common_settings(self):
+        """
+        Test the common settings.
+        """
         common_settings.plugin_settings(settings)
 
     def test_production_settings(self):
+        """
+        Test the production settings.
+        """
         production_settings.plugin_settings(settings)

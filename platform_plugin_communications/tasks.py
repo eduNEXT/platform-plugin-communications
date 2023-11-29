@@ -27,7 +27,7 @@ log = logging.getLogger("edx.celery.task")
 @shared_task
 def send_bulk_course_email_to_learners(entry_id, _xblock_instance_args):
     """
-    Send email to individual learners.
+    Send email to target learners in different subtasks.
 
     Extracted from: lms.djangoapps.instructor_task.tasks.send_bulk_course_email
     """
@@ -40,7 +40,7 @@ def perform_delegate_email_batches_to_learners(
     entry_id, course_id, task_input, action_name
 ):
     """
-    Send email to individual learners in different subtasks.
+    Send email to target learners in different subtasks.
 
     Extracted from: lms.djangoapps.bulk_email.tasks.perform_delegate_email_batches
     """

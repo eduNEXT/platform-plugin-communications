@@ -38,7 +38,7 @@ log = logging.getLogger(__name__)
 @common_exceptions_400
 def send_email_api_view(request, course_id):
     """
-    Get the forum email notification preference for the user.
+    Send email API view wrapper.
 
     Extracted from: lms.djangoapps.instructor.views.api import send_email
     """
@@ -47,7 +47,19 @@ def send_email_api_view(request, course_id):
 
 def send_email(request, course_id):
     """
-    Send email to individual learners.
+    Send an email to self, staff, cohorts, or everyone involved in a course.
+
+    Arguments:
+    - 'request' is the request object
+        - body params:
+            - 'send_to' specifies what group the email should be sent to
+                Options are defined by the CourseEmail model in
+                lms/djangoapps/bulk_email/models.py
+            - 'subject' specifies email's subject
+            - 'message' specifies email's content
+            - 'schedule' specifies when the email should be sent
+            - 'extra_targets' specifies additional targets to send the email to.
+    - 'course_id' is the course id
     """
     course_id = CourseKey.from_string(course_id)
     course_overview = get_course_overview_or_none(course_id)

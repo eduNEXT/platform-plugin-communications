@@ -10,7 +10,7 @@ User = get_user_model()
 
 class Target:
     """
-    Base class for targets.
+    Base class for email targets.
 
     A target is a way to select a set of users to send a message to. This base class
     defines the interface for targets, and provides a registry for targets to be
