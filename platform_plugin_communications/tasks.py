@@ -17,7 +17,7 @@ from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (
     run_main_task,
     send_course_email,
 )
-from platform_plugin_communications.edxapp_wrapper.util_query import use_read_replica_if_available
+from platform_plugin_communications.target import Target
 
 User = get_user_model()
 
@@ -44,7 +44,7 @@ def perform_delegate_email_batches_to_learners(
 
     Extracted from: lms.djangoapps.bulk_email.tasks.perform_delegate_email_batches
     """
-    emails = task_input.get("emails", [])
+    extra_targets = task_input.get("extra_targets", [])
     entry = InstructorTask.objects.get(pk=entry_id)
     # Get inputs to use in this task from the entry.
     user_id = entry.requester.id
@@ -106,19 +106,10 @@ def perform_delegate_email_batches_to_learners(
     global_email_context = _get_course_email_context(course)
     recipient_qsets = [target.get_users(course_id, user_id) for target in targets]
 
-    emails = task_input["emails"]
+    for target, value in extra_targets.items():
+        target_instance = Target.target_for_name(target)
+        recipient_qsets.append(target_instance.get_queryset(course_id, value))
 
-    if emails:
-        recipient_qsets.append(
-            use_read_replica_if_available(
-                User.objects.filter(
-                    email__in=emails,
-                    is_active=True,
-                    courseenrollment__course_id=course_id,
-                    courseenrollment__is_active=True,
-                )
-            )
-        )
     # Use union here to combine the qsets instead of the | operator.  This avoids generating an
     # inefficient OUTER JOIN query that would read the whole user table
     combined_set = (

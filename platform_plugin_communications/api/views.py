@@ -58,10 +58,10 @@ def send_email(request, course_id):
             {"message": "Email is not enabled for this course."}, status=403
         )
 
-    emails = json.loads(request.POST.get("individual_learners_emails", "[]"))
+    extra_targets = json.loads(request.POST.get("extra_targets", "{}"))
     targets = json.loads(request.POST.get("send_to"))
-    subject = request.POST.get("subject", "hi")
-    message = request.POST.get("message", "Hi, this is an example email")
+    subject = request.POST.get("subject")
+    message = request.POST.get("message")
     # optional, this is a date and time in the form of an ISO8601 string
     schedule = request.POST.get("schedule", "")
 
@@ -98,7 +98,7 @@ def send_email(request, course_id):
         return HttpResponseBadRequest(repr(err))
 
     task_api.submit_bulk_course_email_to_learners(
-        request, course_id, email.id, schedule_dt, emails
+        request, course_id, email.id, schedule_dt, extra_targets
     )
 
     return JsonResponse(

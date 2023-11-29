@@ -79,8 +79,9 @@ class TestSendEmailAPIView(TestCase):
         individual_learners_emails = ["student@openedx.org"]
         subject = "Test Subject"
         message = "Test Message"
+        extra_targets = {"emails": individual_learners_emails}
         request.POST = {
-            "individual_learners_emails": json.dumps(individual_learners_emails),
+            "extra_targets": json.dumps(extra_targets),
             "send_to": json.dumps(targets),
             "subject": subject,
             "message": message,
@@ -118,7 +119,7 @@ class TestSendEmailAPIView(TestCase):
             {
                 "email_id": email_id,
                 "to_option": targets,
-                "emails": individual_learners_emails,
+                "extra_targets": extra_targets,
             },
             hashlib.md5(str(email_id).encode("utf-8")).hexdigest(),
         )
@@ -155,8 +156,9 @@ class TestSendEmailAPIView(TestCase):
         individual_learners_emails = ["student@openedx.org"]
         subject = "Test Subject"
         message = "Test Message"
+        extra_targets = {"emails": individual_learners_emails}
         request.POST = {
-            "individual_learners_emails": json.dumps(individual_learners_emails),
+            "extra_targets": json.dumps(extra_targets),
             "send_to": json.dumps(targets),
             "subject": subject,
             "message": message,
@@ -194,7 +196,7 @@ class TestSendEmailAPIView(TestCase):
             {
                 "email_id": email_id,
                 "to_option": targets,
-                "emails": individual_learners_emails,
+                "extra_targets": extra_targets,
             },
             hashlib.md5(str(email_id).encode("utf-8")).hexdigest(),
             tomorrow.replace(tzinfo=pytz.utc),

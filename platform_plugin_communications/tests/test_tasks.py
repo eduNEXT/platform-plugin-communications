@@ -59,7 +59,7 @@ class TestTasks(TestCase):
     @patch("platform_plugin_communications.tasks.CourseEmail")
     @patch("platform_plugin_communications.tasks.get_course")
     @patch("platform_plugin_communications.tasks._get_course_email_context")
-    @patch("platform_plugin_communications.tasks.User")
+    @patch("platform_plugin_communications.target.User")
     def test_perform_delegate_email_batches_to_learners(
         self,
         mock_User,
@@ -96,7 +96,7 @@ class TestTasks(TestCase):
         task_input = {
             "email_id": 1,
             "to_option": ["myself"],
-            "emails": ["test@openedx.org"],
+            "extra_targets": {"emails": ["test@openedx.org"]},
         }
 
         perform_delegate_email_batches_to_learners(
@@ -110,7 +110,7 @@ class TestTasks(TestCase):
             mock_get_course.return_value
         )
         mock_User.objects.filter.assert_called_once_with(
-            email__in=task_input["emails"],
+            email__in=task_input["extra_targets"]["emails"],
             is_active=True,
             courseenrollment__course_id=course_id,
             courseenrollment__is_active=True,

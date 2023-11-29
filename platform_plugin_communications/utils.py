@@ -14,7 +14,11 @@ from platform_plugin_communications.tasks import send_bulk_course_email_to_learn
 
 
 def submit_bulk_course_email_to_learners(
-    request, course_key, email_id, schedule=None, emails=None
+    request,
+    course_key,
+    email_id,
+    schedule=None,
+    extra_targets=None,
 ):
     """
     Submit a bulk email to individual learners.
@@ -31,7 +35,11 @@ def submit_bulk_course_email_to_learners(
 
     task_type = InstructorTaskTypes.BULK_COURSE_EMAIL
     task_class = send_bulk_course_email_to_learners
-    task_input = {"email_id": email_id, "to_option": targets, "emails": emails}
+    task_input = {
+        "email_id": email_id,
+        "to_option": targets,
+        "extra_targets": extra_targets,
+    }
     task_key_stub = str(email_id)
     # create the key value by using MD5 hash:
     task_key = hashlib.md5(task_key_stub.encode("utf-8")).hexdigest()
