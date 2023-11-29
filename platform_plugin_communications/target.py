@@ -65,3 +65,24 @@ class TargetEmails(Target):
                 courseenrollment__is_active=True,
             )
         )
+
+
+class TargetTeam(Target):
+    """
+    Target to send a message to a team.
+    """
+
+    name = "teams"
+
+    def get_queryset(self, course_id, value):
+        """
+        Return a queryset of users to send a message to.
+        """
+        return use_read_replica_if_available(
+            User.objects.filter(
+                teams__team_id__in=value,
+                is_active=True,
+                courseenrollment__course_id=course_id,
+                courseenrollment__is_active=True,
+            )
+        )

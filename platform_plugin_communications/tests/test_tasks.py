@@ -99,7 +99,10 @@ class TestTasks(TestCase):
         task_input = {
             "email_id": 1,
             "to_option": ["myself"],
-            "extra_targets": {"emails": ["test@openedx.org"]},
+            "extra_targets": {
+                "emails": ["test@openedx.org"],
+                "teams": ["team_id_1", "team_id_2"],
+            },
         }
 
         perform_delegate_email_batches(entry_id, course_id, task_input, "emailed")
@@ -110,8 +113,14 @@ class TestTasks(TestCase):
         mock_get_course_email_context.assert_called_once_with(
             mock_get_course.return_value
         )
-        mock_User.objects.filter.assert_called_once_with(
+        mock_User.objects.filter.assert_any_call(
             email__in=task_input["extra_targets"]["emails"],
+            is_active=True,
+            courseenrollment__course_id=course_id,
+            courseenrollment__is_active=True,
+        )
+        mock_User.objects.filter.assert_any_call(
+            teams__team_id__in=task_input["extra_targets"]["teams"],
             is_active=True,
             courseenrollment__course_id=course_id,
             courseenrollment__is_active=True,
