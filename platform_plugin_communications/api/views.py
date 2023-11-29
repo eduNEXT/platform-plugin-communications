@@ -14,7 +14,7 @@ from opaque_keys.edx.keys import CourseKey
 
 import platform_plugin_communications.utils as task_api
 from platform_plugin_communications.edxapp_wrapper.bulk_email import create_course_email, is_bulk_email_feature_enabled
-from platform_plugin_communications.edxapp_wrapper.course_overviews_api import get_course_overview_or_none
+from platform_plugin_communications.edxapp_wrapper.course_overviews import get_course_overview_or_none
 from platform_plugin_communications.edxapp_wrapper.instructor_views_api import (
     _get_branded_email_from_address,
     _get_branded_email_template,

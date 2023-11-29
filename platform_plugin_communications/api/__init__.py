@@ -1,3 +1,3 @@
 """
-API Module for platform_plugin_communications.
+API pacakge for platform_plugin_communications.
 """

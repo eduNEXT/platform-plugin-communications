@@ -1,5 +1,5 @@
 """
-Wrapper methods of course_overviews_api in edx-platform.
+Wrapper methods of course_overviews in edx-platform.
 """
 from importlib import import_module
 
@@ -11,7 +11,7 @@ def get_course_overview_or_none(*args, **kwargs):
     Wrapper method of get_course_overview_or_none in edx-platform.
     """
     backend_function = (
-        settings.PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_API_BACKEND
+        settings.PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_BACKEND
     )
     backend = import_module(backend_function)
 
