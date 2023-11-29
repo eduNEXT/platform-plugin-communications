@@ -19,7 +19,7 @@ def plugin_settings(settings):
     )
 
     settings.PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_VIEWS_API_BACKEND = (
-        "platform_plugin_communications.edxapp_wrapper.backends.instructor_views_api_p_v1"
+        "platform_plugin_communications.edxapp_wrapper.backends.instructor_views_p_v1"
     )
 
     settings.PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_BACKEND = (

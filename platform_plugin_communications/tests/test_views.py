@@ -33,7 +33,7 @@ class Target(Mock):
         "platform_plugin_communications.edxapp_wrapper.backends.bulk_email_api_p_v1_test"
     ),
     PLATFORM_PLUGIN_COMMUNICATIONS_INSTRUCTOR_VIEWS_API_BACKEND=(
-        "platform_plugin_communications.edxapp_wrapper.backends.instructor_views_api_p_v1_test"
+        "platform_plugin_communications.edxapp_wrapper.backends.instructor_views_p_v1_test"
     ),
     PLATFORM_PLUGIN_COMMUNICATIONS_COURSE_OVERVIEWS_BACKEND=(
         "platform_plugin_communications.edxapp_wrapper.backends.course_overviews_p_v1_test"
