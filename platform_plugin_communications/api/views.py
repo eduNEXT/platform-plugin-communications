@@ -146,7 +146,7 @@ def search_learner(request, course_id):
     course_id = CourseKey.from_string(course_id)
     query = request.GET.get("query", "")
 
-    base_queryset = User.objects.filter(
+    queryset = User.objects.filter(
         is_active=True,
         courseenrollment__course_id=course_id,
         courseenrollment__is_active=True,
@@ -157,7 +157,7 @@ def search_learner(request, course_id):
         if data:
             queryset = data
         else:
-            queryset = base_queryset.filter(
+            queryset = queryset.filter(
                 models.Q(  # pylint: disable=unsupported-binary-operation
                     email__icontains=query
                 )
@@ -165,8 +165,6 @@ def search_learner(request, course_id):
                 | models.Q(profile__name__icontains=query),
             ).distinct()
             cache.set(cache_key, queryset, 60)
-    else:
-        queryset = base_queryset
 
     page_number = request.GET.get("page", 1)
     page_size = request.GET.get("page_size", 50)
