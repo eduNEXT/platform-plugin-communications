@@ -16,7 +16,14 @@ Unreleased
 
 *
 
-0.2.0 - 2023-11-23
+0.3.0 - 2023-12-01
+
+Added
+=====
+
+* Send emails to students in a team.
+
+0.2.0 - 2023-12-01
 
 Added
 =====

@@ -77,7 +77,10 @@ class TestSendEmailAPIView(TestCase):
         individual_learners_emails = ["student@openedx.org"]
         subject = "Test Subject"
         message = "Test Message"
-        extra_targets = {"emails": individual_learners_emails}
+        extra_targets = {
+            "emails": individual_learners_emails,
+            "teams": ["team1", "team2"],
+        }
         request.POST = {
             "extra_targets": json.dumps(extra_targets),
             "send_to": json.dumps(targets),
