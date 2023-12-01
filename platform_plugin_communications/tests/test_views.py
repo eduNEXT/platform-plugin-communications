@@ -7,10 +7,11 @@ import json
 from unittest.mock import Mock, patch
 
 import pytz
+from django.db import models
 from django.test import TestCase, override_settings
 from opaque_keys.edx.keys import CourseKey
 
-from platform_plugin_communications.api.views import send_email
+from platform_plugin_communications.api.views import search_learner, send_email
 from platform_plugin_communications.edxapp_wrapper.instructor_tasks import InstructorTaskTypes
 from platform_plugin_communications.tasks import send_bulk_course_email
 
@@ -203,4 +204,119 @@ class TestSendEmailAPIView(TestCase):
         assert json.loads(response.content) == {
             "course_id": course_id,
             "success": True,
+        }
+
+
+class TestSearchUsersAPIView(TestCase):
+    """
+    Test case for search_learners_api_view.
+    """
+
+    @patch("platform_plugin_communications.api.views.User")
+    def test_search_users(self, mock_User):
+        """
+        Test case for search users API View.
+        """
+        request = Mock()
+        request.method = "GET"
+        request.GET = {}
+        course_id = "course-v1:edX+DemoX+Demo_Course"
+        course_key = CourseKey.from_string(course_id)
+        users = [
+            {
+                "email": "test@openedx.org",
+                "username": "test",
+                "name": "test",
+            }
+        ]
+        users_mock = []
+        for user in users:
+            user_mock = Mock()
+            user_mock.username = user["username"]
+            user_mock.email = user["email"]
+            user_mock.profile.name = user["name"]
+            users_mock.append(user_mock)
+        mock_User.objects.filter.return_value = users_mock
+
+        response = search_learner(request, course_id)
+
+        mock_User.objects.filter.assert_called_once_with(
+            is_active=True,
+            courseenrollment__course_id=course_key,
+            courseenrollment__is_active=True,
+        )
+        assert response.status_code == 200
+        assert json.loads(response.content) == {
+            "total": 1,
+            "page": 1,
+            "pages": 1,
+            "page_size": 50,
+            "course_id": course_id,
+            "results": users,
+        }
+
+    @patch("platform_plugin_communications.api.views.cache")
+    @patch("platform_plugin_communications.api.views.User")
+    def test_search_users_with_query(self, mock_User, mock_cache):
+        """
+        Test case for search users API View with query.
+        """
+        request = Mock()
+        request.method = "GET"
+        request.GET = {
+            "query": "test",
+        }
+        course_id = "course-v1:edX+DemoX+Demo_Course"
+        course_key = CourseKey.from_string(course_id)
+        users = [
+            {
+                "email": "test@openedx.org",
+                "username": "test",
+                "name": "test",
+            }
+        ]
+        user_list = []
+        for user in users:
+            user_mock = Mock()
+            user_mock.username = user["username"]
+            user_mock.email = user["email"]
+            user_mock.profile.name = user["name"]
+            user_list.append(user_mock)
+        mock_filter = Mock()
+        mock_User.objects.filter.return_value = mock_filter
+        mock_filter2 = Mock()
+        mock_filter.filter.return_value = mock_filter2
+        mock_filter2.distinct.return_value = user_list
+        mock_cache.get.return_value = None
+        mock_cache.set.return_value = None
+
+        response = search_learner(request, course_id)
+
+        mock_User.objects.filter.assert_called_once_with(
+            is_active=True,
+            courseenrollment__course_id=course_key,
+            courseenrollment__is_active=True,
+        )
+        mock_User.objects.filter().filter.assert_called_once_with(
+            models.Q(  # pylint: disable=unsupported-binary-operation
+                email__icontains="test"
+            )
+            | models.Q(username__icontains="test")
+            | models.Q(profile__name__icontains="test"),
+        )
+        mock_User.objects.filter().filter().distinct.assert_called_once()
+        mock_cache.get.assert_called_once_with("search_learner_course-v1:edX+DemoX+Demo_Course_test")
+        mock_cache.set.assert_called_once_with(
+            "search_learner_course-v1:edX+DemoX+Demo_Course_test",
+            user_list,
+            60,
+        )
+        assert response.status_code == 200
+        assert json.loads(response.content) == {
+            "total": 1,
+            "page": 1,
+            "pages": 1,
+            "page_size": 50,
+            "course_id": course_id,
+            "results": users,
         }

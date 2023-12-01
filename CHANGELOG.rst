@@ -16,10 +16,17 @@ Unreleased
 
 *
 
+0.2.0 - 2023-11-23
+
+Added
+=====
+
+* Search students by username, email or name.
+
 0.1.0 – 2023-11-23
 **********************************************
 
 Added
 =====
 
-* First release on PyPI.
+* Clone send email functionality with extra targets.
