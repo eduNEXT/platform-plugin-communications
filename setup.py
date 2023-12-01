@@ -147,17 +147,22 @@ CHANGELOG = open(
 ).read()
 
 setup(
-    name="Platform Plugin Communications",
+    name="platform-plugin-communications",
     version=VERSION,
     description="""An Open edX plugin that extends email capabiliplatform""",
     long_description=README + "\n\n" + CHANGELOG,
     author="eduNEXT",
     author_email="technical@edunext.co",
-    url="https://github.com/eduNEXT/platform_plugin_communications",
+    url="https://github.com/eduNEXT/platform-plugin-communications",
     packages=find_packages(
         include=["platform_plugin_communications", "platform_plugin_communications.*"],
         exclude=["*tests"],
     ),
+    entry_points={
+        "lms.djangoapp": [
+            "platform_plugin_communications = platform_plugin_communications.apps:PlatformPluginCommunicationsConfig",
+        ],
+    },
     include_package_data=True,
     install_requires=load_requirements("requirements/base.in"),
     python_requires=">=3.8",
