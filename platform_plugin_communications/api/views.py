@@ -109,7 +109,7 @@ def send_email(request, course_id):
     except ValueError as err:
         return HttpResponseBadRequest(repr(err))
 
-    task_api.submit_bulk_course_email_to_learners(
+    task_api.submit_bulk_course_email(
         request, course_id, email.id, schedule_dt, extra_targets
     )
 

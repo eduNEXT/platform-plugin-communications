@@ -5,10 +5,7 @@ from unittest.mock import Mock, patch
 
 from django.test import TestCase, override_settings
 
-from platform_plugin_communications.tasks import (
-    perform_delegate_email_batches_to_learners,
-    send_bulk_course_email_to_learners,
-)
+from platform_plugin_communications.tasks import perform_delegate_email_batches, send_bulk_course_email
 
 
 @override_settings(
@@ -37,7 +34,7 @@ class TestTasks(TestCase):
     """
 
     @patch("platform_plugin_communications.tasks.run_main_task")
-    def test_send_bulk_course_email_to_learners(self, mock_run_main_task):
+    def test_send_bulk_course_email(self, mock_run_main_task):
         """
         Test case for the task to send email to learners.
         """
@@ -46,10 +43,10 @@ class TestTasks(TestCase):
         entry_id = 1
         _xblock_instance_args = None
 
-        send_bulk_course_email_to_learners(entry_id, _xblock_instance_args)
+        send_bulk_course_email(entry_id, _xblock_instance_args)
 
         mock_run_main_task.assert_called_once_with(
-            entry_id, perform_delegate_email_batches_to_learners, "emailed"
+            entry_id, perform_delegate_email_batches, "emailed"
         )
 
     @patch("platform_plugin_communications.tasks.InstructorTask")
@@ -59,7 +56,7 @@ class TestTasks(TestCase):
     @patch("platform_plugin_communications.tasks.get_course")
     @patch("platform_plugin_communications.tasks._get_course_email_context")
     @patch("platform_plugin_communications.target.User")
-    def test_perform_delegate_email_batches_to_learners(
+    def test_perform_delegate_email_batches(
         self,
         mock_User,
         mock_get_course_email_context,
@@ -105,9 +102,7 @@ class TestTasks(TestCase):
             "extra_targets": {"emails": ["test@openedx.org"]},
         }
 
-        perform_delegate_email_batches_to_learners(
-            entry_id, course_id, task_input, "emailed"
-        )
+        perform_delegate_email_batches(entry_id, course_id, task_input, "emailed")
 
         mock_InstructorTask.objects.get.assert_called_once_with(pk=entry_id)
         mock_CourseEmail.objects.get.assert_called_once_with(id=task_input["email_id"])

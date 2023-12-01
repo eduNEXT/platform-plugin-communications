@@ -12,7 +12,7 @@ from opaque_keys.edx.keys import CourseKey
 
 from platform_plugin_communications.api.views import send_email
 from platform_plugin_communications.edxapp_wrapper.instructor_tasks import InstructorTaskTypes
-from platform_plugin_communications.tasks import send_bulk_course_email_to_learners
+from platform_plugin_communications.tasks import send_bulk_course_email
 
 delta = datetime.timedelta(days=1)
 now = datetime.datetime.now()
@@ -59,7 +59,7 @@ class TestSendEmailAPIView(TestCase):
     @patch("platform_plugin_communications.api.views.create_course_email")
     @patch("platform_plugin_communications.utils.get_course_email")
     @patch("platform_plugin_communications.utils.submit_task")
-    def test_send_email_to_individual_learners(
+    def test_send_email(
         self,
         mock_submit_task,
         mock_get_course_email,
@@ -113,7 +113,7 @@ class TestSendEmailAPIView(TestCase):
         mock_submit_task.assert_called_once_with(
             request,
             InstructorTaskTypes.BULK_COURSE_EMAIL,
-            send_bulk_course_email_to_learners,
+            send_bulk_course_email,
             course_key,
             {
                 "email_id": email_id,
@@ -137,7 +137,7 @@ class TestSendEmailAPIView(TestCase):
     @patch("platform_plugin_communications.api.views.create_course_email")
     @patch("platform_plugin_communications.utils.get_course_email")
     @patch("platform_plugin_communications.utils.schedule_task")
-    def test_send_email_to_individual_learners_with_schedule(
+    def test_send_email_with_schedule(
         self,
         mock_schedule_task,
         mock_get_course_email,

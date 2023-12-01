@@ -10,10 +10,10 @@ from platform_plugin_communications.edxapp_wrapper.instructor_tasks import (
     schedule_task,
     submit_task,
 )
-from platform_plugin_communications.tasks import send_bulk_course_email_to_learners
+from platform_plugin_communications.tasks import send_bulk_course_email
 
 
-def submit_bulk_course_email_to_learners(
+def submit_bulk_course_email(
     request,
     course_key,
     email_id,
@@ -21,7 +21,16 @@ def submit_bulk_course_email_to_learners(
     extra_targets=None,
 ):
     """
-    Submit a bulk email to individual learners.
+    Submit a bulk email to targets (suported by CourseEmail) and extra_targets.
+
+    extra_targets is a dict with the following structure:
+
+    {
+        "target_name": ["target_1", "target_2", ...],
+        ...
+    }
+
+    Each target_name is a valid subclass of Target.
 
     Extracted from: lms.djangoapps.instructor.views.api.submit_bulk_course_email
     """
@@ -34,7 +43,7 @@ def submit_bulk_course_email_to_learners(
     ]
 
     task_type = InstructorTaskTypes.BULK_COURSE_EMAIL
-    task_class = send_bulk_course_email_to_learners
+    task_class = send_bulk_course_email
     task_input = {
         "email_id": email_id,
         "to_option": targets,
