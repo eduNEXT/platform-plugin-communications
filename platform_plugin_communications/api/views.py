@@ -90,6 +90,8 @@ def send_email(request, course_id):
 
     extra_targets = json.loads(request.POST.get("extra_targets", "{}"))
     targets = json.loads(request.POST.get("send_to"))
+    if not targets:
+        targets = ["myself"]
     subject = request.POST.get("subject")
     message = request.POST.get("message")
     # optional, this is a date and time in the form of an ISO8601 string
