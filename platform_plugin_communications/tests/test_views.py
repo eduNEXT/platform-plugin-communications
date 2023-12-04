@@ -140,6 +140,87 @@ class TestSendEmailAPIView(TestCase):
     @patch("platform_plugin_communications.api.views.is_bulk_email_feature_enabled")
     @patch("platform_plugin_communications.api.views.create_course_email")
     @patch("platform_plugin_communications.utils.get_course_email")
+    @patch("platform_plugin_communications.utils.submit_task")
+    def test_send_email_without_targets(
+        self,
+        mock_submit_task,
+        mock_get_course_email,
+        mock_create_course_email,
+        mock_is_bulk_email_feature_enabled,
+        mock_get_course_overview_or_none,
+    ):
+        """
+        Test case for sending email to individual learners.
+        """
+        request = Mock()
+        request.method = "POST"
+        targets = ["myself"]
+        individual_learners_emails = ["student@openedx.org"]
+        subject = "Test Subject"
+        message = "Test Message"
+        extra_targets = {
+            "emails": individual_learners_emails,
+            "teams": ["team1", "team2"],
+        }
+        request.POST = {
+            "extra_targets": json.dumps(extra_targets),
+            "send_to": "[]",
+            "subject": subject,
+            "message": message,
+        }
+        course_id = "course-v1:edX+DemoX+Demo_Course"
+        mock_is_bulk_email_feature_enabled.return_value = True
+        mock_get_course_overview_or_none.return_value = Mock()
+        course_email_mock = Mock()
+        mock_get_course_email.return_value = course_email_mock
+        course_email_mock.targets.all.return_value = [
+            Target(target) for target in targets
+        ]
+        mock_create_course_email.return_value = course_email_mock
+        mock_submit_task.return_value = Mock()
+        course_key = CourseKey.from_string(course_id)
+
+        response = send_email(request, course_id)
+
+        mock_is_bulk_email_feature_enabled.assert_called_once_with(course_key)
+        mock_create_course_email.assert_called_once_with(
+            course_key,
+            request.user,
+            targets,
+            subject,
+            message,
+            template_name="test_template",
+            from_addr="test@openedx.org",
+        )
+        course_email_mock.targets.all.assert_called_once()
+        email_id = course_email_mock.id
+
+        mock_submit_task.assert_called_once_with(
+            request,
+            InstructorTaskTypes.BULK_COURSE_EMAIL,
+            send_bulk_course_email,
+            course_key,
+            {
+                "email_id": email_id,
+                "to_option": targets,
+                "extra_targets": extra_targets,
+            },
+            hashlib.md5(str(email_id).encode("utf-8")).hexdigest(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                "course_id": course_id,
+                "success": True,
+            },
+        )
+
+    @patch("platform_plugin_communications.api.views.get_course_overview_or_none")
+    @patch("platform_plugin_communications.api.views.is_bulk_email_feature_enabled")
+    @patch("platform_plugin_communications.api.views.create_course_email")
+    @patch("platform_plugin_communications.utils.get_course_email")
     @patch("platform_plugin_communications.utils.schedule_task")
     def test_send_email_with_schedule(
         self,
@@ -308,7 +389,9 @@ class TestSearchUsersAPIView(TestCase):
             | models.Q(profile__name__icontains="test"),
         )
         mock_User.objects.filter().filter().distinct.assert_called_once()
-        mock_cache.get.assert_called_once_with("search_learner_course-v1:edX+DemoX+Demo_Course_test")
+        mock_cache.get.assert_called_once_with(
+            "search_learner_course-v1:edX+DemoX+Demo_Course_test"
+        )
         mock_cache.set.assert_called_once_with(
             "search_learner_course-v1:edX+DemoX+Demo_Course_test",
             user_list,
