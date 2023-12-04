@@ -16,6 +16,13 @@ Unreleased
 
 *
 
+0.3.1 - 2023-12-04
+
+Added
+=====
+
+* Default target for send email is now the current user.
+
 0.3.0 - 2023-12-01
 
 Added
