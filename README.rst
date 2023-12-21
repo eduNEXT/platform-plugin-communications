@@ -153,8 +153,8 @@ To use correctly the plugin, you need to do the next steps:
    - Everyone: ``Yes``
    - Superusers: ``True``
 
-Using Plugin
-************
+Using the plugin's APIs
+***********************
 
 Now, you can use the plugin. The next endpoints are available:
 
@@ -171,9 +171,19 @@ Now, you can use the plugin. The next endpoints are available:
   Same parameters as the ``send_email`` endpoint in edx-platform but with an additional
   parameter:
 
-  - ``extra_targets``: Specifies additional targets to send the email to. It is object
-    with the properties ``emails`` and ``teams``. The property ``emails`` is a list of
-    user email's and the property ``teams`` is a list of team IDs.
+  - ``extra_targets``: Specifies additional targets to send the email to. It is
+    a JSON object with the properties ``emails`` and ``teams``. The property
+    ``emails`` is a list of user emails and the property ``teams`` is a list of
+    team IDs.
+
+    Example request:
+
+    .. code-block:: json
+
+      {
+        ...
+        "extra_targets": {"emails": ["john@doe.com"], "teams": ["team-bd5bef08149e41e58de24aa60e18c233"]}
+      }
 
 - GET ``/<lms_host>/platform-plugin-communications/<course_id>/api/search_learners/``: List all
   students in the course that match the query. The result list has a object for each
