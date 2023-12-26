@@ -149,7 +149,7 @@ CHANGELOG = open(
 setup(
     name="platform-plugin-communications",
     version=VERSION,
-    description="""An Open edX plugin that extends email capabiliplatform""",
+    description="""An Open edX plugin that extends email capabilities for the platform""",
     long_description=README + "\n\n" + CHANGELOG,
     author="eduNEXT",
     author_email="technical@edunext.co",
